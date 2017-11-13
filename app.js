@@ -1,19 +1,30 @@
 
 'use strict';
 
-var SwaggerExpress = require('swagger-express-mw');
-var app = require('express')();
-var mongoose = require('mongoose');
-var bluebird = require('bluebird');
+const SwaggerExpress = require('swagger-express-mw');
+const app = require('express')();
+const mongoose = require('mongoose');
+const bluebird = require('bluebird');
 const swaggerUI = require('swagger-ui-express');
 const YAML = require('yamljs');
 const swaggerDoc = YAML.load('./api/swagger/swagger.yaml');
+const logger = require('morgan');
+const passport = require('passport');
+
+const appConfig = require('./config/keys');
 
 const showExplorer = true;
 
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDoc, showExplorer));
 
 module.exports = app; // for testing
+
+app.use(logger('dev'));
+
+//Passport Middleware
+app.use(passport.initialize());
+app.use(passport.session());
+require('./config/passport')(passport);
 
 var config = {
   appRoot: __dirname // required config

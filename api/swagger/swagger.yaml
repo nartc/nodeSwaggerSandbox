@@ -12,6 +12,11 @@ schemes:
   - http
   - https
 # format of bodies a client can send (Content-Type)
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
 consumes:
   - application/json
 # format of the responses to the client (Accepts)
@@ -55,7 +60,65 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-                
+  /user:
+    x-swagger-router-controller: user
+    get:
+      parameters:
+        - name: Authorization
+          in: header
+          type: string
+          required: true
+      description: Get a single user profile
+      operationId: getUser
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GetUserResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: Register User
+      operationId: register
+      parameters:
+        - name: user
+          in: body
+          required: true
+          description: User's login information
+          schema:
+            $ref: "#/definitions/RegisterUserBody"
+      responses:
+        "200":
+          description: Successfully registered User
+          schema:
+            $ref: "#/definitions/UserResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /user/login:
+    x-swagger-router-controller: user
+    post:
+      description: Login User
+      operationId: login
+      parameters:
+        - name: credential
+          in: body
+          required: true
+          description: Login Input Credetials
+          schema:
+            $ref: "#/definitions/CredentialBody"
+      responses:
+        "200":
+          description: Sucessfully logged in
+          schema:
+            $ref: "#/definitions/AuthenticatedUserResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"              
   /swagger:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
@@ -111,3 +174,44 @@ definitions:
         type: string
       message:
         type: string
+  GetUserResponse:
+    required:
+      - user
+    properties:
+      user:
+        $ref: "#/definitions/UserResponse"
+  UserResponse:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      createdOn:
+        type: string
+        format: date-time
+      response-info:
+        $ref: "#/definitions/GeneralResponseInfo"
+  AuthenticatedUserResponse:
+    properties:
+      token:
+        type: string
+      email:
+        type: string
+      createdOn:
+        type: string
+        format: date-time
+      issuedAt:
+        type: string
+        format: date-time
+      response-info:
+        $ref: "#/definitions/GeneralResponseInfo"
+  CredentialBody:
+    properties:
+      email:
+        type: string
+      password:
+        type: string    
+  RegisterUserBody:
+    properties:
+      user:
+        $ref: "#/definitions/CredentialBody"
